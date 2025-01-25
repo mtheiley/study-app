@@ -78,8 +78,6 @@ async def createOption(Text, OptionImageID, Type, IsCorrect):
     await asyncio.sleep(1)
     return text("")
 
-<<<<<<< HEAD
-=======
 @app.get("/option/removeOption/{}")
 async def removeOption(OptionID):
     await asyncio.sleep(1)
@@ -150,7 +148,6 @@ async def groupRemoveCard(GroupID, CardID):
     await asyncio.sleep(1)
     return text("")
 
->>>>>>> 0ce6b6514635e5c0db43552797736910429673ad
 if __name__ == "__main__":
     sql_path = os.path.abspath(f"{__file__}/../production.sqlite")
     if os.path.isfile(sql_path):
