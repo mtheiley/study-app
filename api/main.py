@@ -53,12 +53,12 @@ async def createCard(request, card_uuid = uuid.uuid4().hex):
     return text("Operation Successful")
 
 @app.post("/groups/view/<card_group>")
-async def viewCard(card_group):
+async def viewCard(request, card_group):
     db_conn = await aiosqlite.connect(sql_path)
     if card_group == "all":
         cur = await db_conn.execute('select * from Cards')
     else:
-        cur = await db_conn.execute("select * from Cards WHERE GroupID = ?", (card_group))
+        cur = await db_conn.execute("select * from Cards WHERE GroupID = ?", (card_group,))
     return text(str(await cur.fetchall()))
 
 '''
