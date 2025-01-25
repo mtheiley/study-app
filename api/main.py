@@ -11,18 +11,24 @@ sql_path = os.path.abspath(f"{__file__}/../production.sqlite")
 
 app = Sanic(__name__)
 
-async def get_conn(sql_path):
-    return await aiosqlite.connect(sql_path)
-
 @app.get("/cards/delete/<card_id>")
-async def removeCard(card_id, db_conn = get_conn(sql_path)):
-    await db_conn.cursor.execute(f"DELETE FROM Cards WHERE cardID = ?", card_id)
+async def removeCard(card_id):
+    db_conn = await aiosqlite.connect(sql_path)
+    await db_conn.execute(f"DELETE FROM Cards WHERE cardID = ?", (card_id,))
+    await db.commit()
+    return text("Operation Successful")
+
+@app.get("/group/delete/<group_id>")
+async def removeGroup(group_id):
+    db_conn = await aiosqlite.connect(sql_path)
+    await db_conn.execute("UPDATE Cards SET GroupID = "" WHERE GroupID = ?", (group_name,))
     await db.commit()
     return text("Operation Successful")
 
 @app.get("/cards/create")
-async def createCard(request: Request, uuid = uuid.uuid4().hex, db_conn = get_conn(sql_path)):
-    await db_conn.cursor.execute('''INSERT INTO table_name()
+async def createCard(request: Request, uuid = uuid.uuid4().hex):
+    db_conn = await aiosqlite.connect(sql_path)
+    await db_conn.execute('''INSERT INTO table_name()
         "CardID",
         "GroupID",
         "Title",
@@ -30,115 +36,45 @@ async def createCard(request: Request, uuid = uuid.uuid4().hex, db_conn = get_co
         "Option_2",
         "Option_3",
         "Option_4",
-        "image_url"
+        "image"
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', uuid, request.json['CardID'], request.json['GroupID'], request.json['Title'], request.json['Option_1'], request.json['Option_2'], request.json['Option_3'], request.json['Option_4'], request.json['image_url'])
-    await db.commit()
+    ''', (uuid, request.json['CardID'], request.json['GroupID'], request.json['Title'], request.json['Option_1'], request.json['Option_2'], request.json['Option_3'], request.json['Option_4'], request.json['image_base64']))
     return text("Operation Successful")
 
-@app.get("/cards/view/<card_group>")
-async def viewCard(cardId, db_conn = get_conn(sql_path)):
+@app.get("/groups/view/<card_group>")
+async def viewCard(card_group):
+    db_conn = await aiosqlite.connect(sql_path)
     if card_group == "all":
-        await db_conn.cursor('select * from cards')
+        cur = await db_conn.execute('select * from Cards')
     else:
-        await db_conn.cursor("select * from cards WHERE GroupID = ?", card_group)
-    return await cur.fetchall()
+        cur = await db_conn.execute("select * from Cards WHERE GroupID = ?", (card_group,))
+    return text(str(await cur.fetchall()))
 
 '''
-@app.get("/cards/<card_id>/edit")
-async def editCard(request):
-    ...
-    return text("")
-
-
-@app.get("/cards/setCardGroup/{}")
-async def setCardGroup(CardID, GroupId):
-    ...
-
-
-@app.get("/cards/random/")
-async def randomCard():
-    ...
-
-@app.get("/cards/setCardImage/{}")
-async def setCardImage(CardImageID, Image):
-    ...
-
-@app.get("/cards/getCardImage/{}")
-async def getCardImage(CardImageID):
-    ...
-
-
-@app.get("/cards/AIGeneratedCard/{}")
-async def AIGeneratedCard(Type):
-    ...
-
-
-@app.get("/option/createOption/{}")
-async def createOption(Text, OptionImageID, Type, IsCorrect):
-    ...
-
-@app.get("/option/removeOption/{}")
-async def removeOption(OptionID):
-    ...
-
-
-@app.get("/option/viewOption/{}")
-async def viewOption(OptionID):
-    ...
-
-@app.get("/option/editOption/{}")
-async def editOption(OptionID, Text, OptionImageID, Type, IsCorrect):
-    ...
-
-@app.get("/option/setOptionImage/{}")
-async def setOptionImage(OptionImageID, Image):
-    ...
-@app.get("/option/createOptionImage/{}")
-async def createOptionImage(Image):
-    ...
-
-@app.get("/option/getOptionImage/{}")
-async def getOptionImage(OptionImageID):
-    ...
-
-@app.get("/group/createGroup/{}")
-async def createGroup(Creator, Title, Description,IDs):
-    ...
-
-@app.get("/group/removeGroup/{}")
-async def removeGroup(GroupID):
-    ...
-
-@app.get("/group/viewGroupInfo/{}")
-async def viewGroupInfo(GroupID):
-    ...
-
-@app.get("/group/viewGroupCards/{}")
-async def viewGroupCards(GroupID):
-    ...
-
-@app.get("/group/viewGroupList/{}")
-async def viewGroupList():
-    ...
-
-@app.get("/group/editGroupInfo/{}")
-async def editGroupInfo(GroupID, Creator, Title, Description):
-    ...
-
-@app.get("/group/groupAddCard/{}")
-async def groupAddCard(GroupID, CardID):
-    ...
-
-@app.get("/group/groupRemoveCard/{}")
-async def groupRemoveCard(GroupID, CardID):
-    ...
+@app.get("/cards/edit")
+async def editCard(request: Request, db_conn = get_conn()):
+    await 
 '''
+
+@app.get("/cards/<card_id>/set_group/<group_name>")
+async def setCardGroup(request, card_id, group_name):
+    db_conn = await aiosqlite.connect(sql_path)
+    await db_conn.execute("UPDATE Cards SET GroupID = ? WHERE CardID = ?", (group_name, card_id))
+    await db_conn.commit()
+
+@app.get("/group/<group_id>/edit_info")
+async def editGroupInfo(group_id, request: Request):
+    db_conn = await aiosqlite.connect(sql_path)
+    if request.json['description'] is not None:
+        await db_conn.execute("UPDATE Group SET Description = ? WHERE ID = ?", (request.json['description'], group_id))
+    if request.json['title'] is not None:
+        await db_conn.execute("UPDATE Group SET Title = ? WHERE ID = ?", (request.json['title'], group_id))
+    await db_conn.commit()
 
 if __name__ == "__main__":
     if os.path.isfile(sql_path):
         print(sql_path + "exists!")
-        app.run(host="0.0.0.0", port=8000)
+        app.run(host="0.0.0.0", port=8000, auto_reload=True)
     else:
         with sqlite3.connect(sql_path) as connection:
             connection.execute('''
@@ -146,7 +82,6 @@ if __name__ == "__main__":
                     "Creator"    TEXT,
                     "Title"      TEXT,
                     "Description" TEXT,
-                    "Group"      TEXT,
                     "GroupID"         TEXT
                 )
             ''')
@@ -159,7 +94,7 @@ if __name__ == "__main__":
                     "Option_2"  TEXT,
                     "Option_3"  TEXT,
                     "Option_4"  TEXT,
-                    "image_url" TEXT
+                    "image_base64" TEXT
                 )
             ''')
 
