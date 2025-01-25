@@ -1,23 +1,25 @@
-import { Image, StyleSheet, Text, Pressable, FlatList } from 'react-native';
-
+import { Image, StyleSheet, Platform, Button, FlatList, Pressable } from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Link } from 'expo-router';
+import Option from '@/components/Option';
 
 
 const DATA = [
   {
     id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'Group 1',
+    title: 'Question 1',
+    options: ['Answer', 'Answer', 'Answer', 'Answer']
   },
   {
     id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Group 2',
+    title: 'Question 2',
+    options: ['Answer', 'Answer', 'Answer', 'Answer']
   },
   {
     id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Group 3',
+    title: 'Question 3',
+    options: ['Answer', 'Answer', 'Answer', 'Answer']
   },
 ];
 
@@ -30,18 +32,26 @@ export default function HomeScreen() {
           //source={require('@/assets/images/Home-Page-Header-Image.jpg')}
         />
       }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">STUDY APP</ThemedText>
-      </ThemedView>
+
       <FlatList
         data={DATA}
 
         renderItem={({ item }) =>
-          <Link href="/questions" asChild>
-            <Pressable>
-              <ThemedText>{item.title}</ThemedText>
-            </Pressable>
-          </Link>
+          <ThemedView>
+            <ThemedText type='subtitle'>{item.title}</ThemedText>
+            <form>
+              <input type="radio" name={item.id} id="" />
+              <ThemedText>{item.options[0]}</ThemedText><br />
+              <input type="radio" name={item.id} id="" />
+              <ThemedText>{item.options[1]}</ThemedText><br />
+              <input type="radio" name={item.id} id="" />
+              <ThemedText>{item.options[2]}</ThemedText><br />
+              <input type="radio" name={item.id} id="" />
+              <ThemedText>{item.options[3]}</ThemedText><br /><br />
+              
+            </form>
+        
+          </ThemedView>
         }
 
 
@@ -69,3 +79,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
 });
+
+
