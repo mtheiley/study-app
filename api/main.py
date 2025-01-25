@@ -1,4 +1,3 @@
-# src/server.py
 import aiosqlite
 import asyncio
 import sqlite3
@@ -8,19 +7,21 @@ from sanic import Sanic, text
 from sanic.request import Request
 from sanic.response import text
 
+sql_path = os.path.abspath(f"{__file__}/../production.sqlite")
+
 app = Sanic(__name__)
 
 async def get_conn(sql_path):
     return await aiosqlite.connect(sql_path)
 
 @app.get("/cards/delete/<card_id>")
-async def removeCard(card_id, db_conn = get_conn()):
+async def removeCard(card_id, db_conn = get_conn(sql_path)):
     await db_conn.cursor.execute(f"DELETE FROM Cards WHERE cardID = ?", card_id)
     await db.commit()
     return text("Operation Successful")
 
 @app.get("/cards/create")
-async def createCard(request: Request, uuid = uuid.uuid4().hex, db_conn = get_conn()):
+async def createCard(request: Request, uuid = uuid.uuid4().hex, db_conn = get_conn(sql_path)):
     await db_conn.cursor.execute('''INSERT INTO table_name()
         "CardID",
         "GroupID",
@@ -36,16 +37,15 @@ async def createCard(request: Request, uuid = uuid.uuid4().hex, db_conn = get_co
     return text("Operation Successful")
 
 @app.get("/cards/view/<card_group>")
-async def viewCard(cardId, db_conn = get_conn()):
+async def viewCard(cardId, db_conn = get_conn(sql_path)):
     if card_group == "all":
         await db_conn.cursor('select * from cards')
     else:
         await db_conn.cursor("select * from cards WHERE GroupID = ?", card_group)
     return await cur.fetchall()
 
-@app.get("/cards/edit")
+@app.get("/cards/<card_id>/edit")
 async def editCard(request):
-    await asyncio.sleep(1)
     return text("")
 
 @app.get("/cards/setCardGroup/{}")
@@ -149,10 +149,8 @@ async def groupRemoveCard(GroupID, CardID):
     return text("")
 
 if __name__ == "__main__":
-    sql_path = os.path.abspath(f"{__file__}/../production.sqlite")
     if os.path.isfile(sql_path):
         print(sql_path + "exists!")
-        export_db_conn = asyncio.run(get_conn(sql_path))
         app.run(host="0.0.0.0", port=8000)
     else:
         with sqlite3.connect(sql_path) as connection:
