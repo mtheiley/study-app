@@ -73,7 +73,84 @@ async def AIGeneratedCard(Type):
     await asyncio.sleep(1)
     return text("")
 
+@app.get("/option/createOption/{}")
+async def createOption(Text, OptionImageID, Type, IsCorrect):
+    await asyncio.sleep(1)
+    return text("")
 
+<<<<<<< HEAD
+=======
+@app.get("/option/removeOption/{}")
+async def removeOption(OptionID):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/option/viewOption/{}")
+async def viewOption(OptionID):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/option/editOption/{}")
+async def editOption(OptionID, Text, OptionImageID, Type, IsCorrect):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/option/setOptionImage/{}")
+async def setOptionImage(OptionImageID, Image):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/option/createOptionImage/{}")
+async def createOptionImage(Image):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/option/getOptionImage/{}")
+async def getOptionImage(OptionImageID):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/createGroup/{}")
+async def createGroup(Creator, Title, Description,IDs):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/removeGroup/{}")
+async def removeGroup(GroupID):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/viewGroupInfo/{}")
+async def viewGroupInfo(GroupID):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/viewGroupCards/{}")
+async def viewGroupCards(GroupID):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/viewGroupList/{}")
+async def viewGroupList():
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/editGroupInfo/{}")
+async def editGroupInfo(GroupID, Creator, Title, Description):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/groupAddCard/{}")
+async def groupAddCard(GroupID, CardID):
+    await asyncio.sleep(1)
+    return text("")
+
+@app.get("/group/groupRemoveCard/{}")
+async def groupRemoveCard(GroupID, CardID):
+    await asyncio.sleep(1)
+    return text("")
+
+>>>>>>> 0ce6b6514635e5c0db43552797736910429673ad
 if __name__ == "__main__":
     sql_path = os.path.abspath(f"{__file__}/../production.sqlite")
     if os.path.isfile(sql_path):
