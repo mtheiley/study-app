@@ -1,15 +1,10 @@
 # src/server.py
+import aiosqlite
 from sanic import Sanic, text # if you don't have sanic, just pip install sanic 
 
 app = Sanic(__name__)
 
-@app.get("/hello_world")
-def task(request):
-    wait_task()
-    return text("hello")
-
-
-@app.get("/async_task")
+@app.get("/cards/delete/{}")
 async def async_task(request):
     await asyncio.sleep(1)
     return text("")
