@@ -1,69 +1,80 @@
 import aiosqlite
-import asyncio
 import sqlite3
 import os
 import uuid
 from sanic import Sanic, text
-from sanic.request import Request
 from sanic.response import text
 
 sql_path = os.path.abspath(f"{__file__}/../production.sqlite")
 
 app = Sanic(__name__)
 
-@app.get("/cards/delete/<card_id>")
+@app.post("/cards/delete/<card_id>")
 async def removeCard(card_id):
     db_conn = await aiosqlite.connect(sql_path)
     await db_conn.execute(f"DELETE FROM Cards WHERE cardID = ?", (card_id,))
     await db.commit()
     return text("Operation Successful")
 
-@app.get("/group/delete/<group_id>")
+@app.post("/group/delete/<group_id>")
 async def removeGroup(group_id):
     db_conn = await aiosqlite.connect(sql_path)
     await db_conn.execute("UPDATE Cards SET GroupID = "" WHERE GroupID = ?", (group_name,))
     await db.commit()
     return text("Operation Successful")
 
-@app.get("/cards/create")
-async def createCard(request: Request, uuid = uuid.uuid4().hex):
+@app.post("/cards/create")
+async def createCard(request, card_uuid = uuid.uuid4().hex):
     db_conn = await aiosqlite.connect(sql_path)
-    await db_conn.execute('''INSERT INTO table_name()
-        "CardID",
-        "GroupID",
-        "Title",
-        "Option_1",
-        "Option_2",
-        "Option_3",
-        "Option_4",
-        "image"
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (uuid, request.json['CardID'], request.json['GroupID'], request.json['Title'], request.json['Option_1'], request.json['Option_2'], request.json['Option_3'], request.json['Option_4'], request.json['image_base64']))
+    print(request.json)
+    print(request.body)
+    await db_conn.execute('''
+        INSERT INTO Cards (
+            CardID,
+            GroupID,
+            Title,
+            Option_1,
+            Option_2,
+            Option_3,
+            Option_4,
+            image_base64
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (
+        card_uuid,
+        request.json['GroupID'],
+        request.json['Title'],
+        request.json['Option_1'],
+        request.json['Option_2'],
+        request.json['Option_3'],
+        request.json['Option_4'],
+        request.json['image_base64']
+    ))
+    await db_conn.commit()
     return text("Operation Successful")
 
-@app.get("/groups/view/<card_group>")
+@app.post("/groups/view/<card_group>")
 async def viewCard(card_group):
     db_conn = await aiosqlite.connect(sql_path)
     if card_group == "all":
         cur = await db_conn.execute('select * from Cards')
     else:
-        cur = await db_conn.execute("select * from Cards WHERE GroupID = ?", (card_group,))
+        cur = await db_conn.execute("select * from Cards WHERE GroupID = ?", (card_group))
     return text(str(await cur.fetchall()))
 
 '''
-@app.get("/cards/edit")
+@app.post("/cards/edit")
 async def editCard(request: Request, db_conn = get_conn()):
     await 
 '''
 
-@app.get("/cards/<card_id>/set_group/<group_name>")
+@app.post("/cards/<card_id>/set_group/<group_name>")
 async def setCardGroup(request, card_id, group_name):
     db_conn = await aiosqlite.connect(sql_path)
     await db_conn.execute("UPDATE Cards SET GroupID = ? WHERE CardID = ?", (group_name, card_id))
     await db_conn.commit()
 
-@app.get("/group/<group_id>/edit_info")
-async def editGroupInfo(group_id, request: Request):
+@app.post("/group/<group_id>/edit_info")
+async def editGroupInfo(group_id, request):
     db_conn = await aiosqlite.connect(sql_path)
     if request.json['description'] is not None:
         await db_conn.execute("UPDATE Group SET Description = ? WHERE ID = ?", (request.json['description'], group_id))
